@@ -1,3 +1,4 @@
+import heapq
 
 class Node:
     def __init__(self, val, left=None, right=None, letter=None):
@@ -10,16 +11,16 @@ class Node:
 
 def buildTree(freqs):
     nodes = []
+    heapq.heapify(nodes)
     for key,val in freqs.items():
-        nodes.append(Node(val, letter=key))
+        heapq.heappush(nodes, (val, Node(val, letter=key)))
 
     while len(nodes) > 1:
-        nodes = sorted(nodes, key= lambda x: x.getVal(), reverse=True)
-        a = nodes.pop()
-        b = nodes.pop()
-        composite = Node(a.getVal()+b.getVal(), a, b)
-        nodes.append(composite)
-    return nodes
+        a = heapq.heappop(nodes)
+        b = heapq.heappop(nodes)
+        composite = Node(a[0]+b[0], a[1], b[1])
+        heapq.heappush(nodes, (composite.getVal(), composite))
+    return heapq.heappop(nodes)[1]
 
 def letter_to_code(tree):
     mp = {}
@@ -65,7 +66,7 @@ def driver():
     text_to_encode = "etanainateinaitainetainnnaaaa"
     freqs = get_freqs(text_to_encode)
 
-    tree = buildTree(freqs)[0]
+    tree = buildTree(freqs)
     code_map = letter_to_code(tree)
     encoded_string = encode(text_to_encode, code_map)
     print(encoded_string)
